@@ -6,11 +6,22 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
+const allowedOrigins = (process.env.ALLOWED_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
 
-app.use(cors({ origin: ALLOWED_ORIGIN === "*" ? true : ALLOWED_ORIGIN }));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
+  })
+);
 app.use(express.json({ limit: "10mb" }));
-app.use("/vendor", express.static(path.join(__dirname, "node_modules")));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/api/health", (_req, res) => {
@@ -72,10 +83,6 @@ app.post("/api/claude", async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: error.message || "Internal server error." });
   }
-});
-
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.listen(PORT, () => {

@@ -55,7 +55,7 @@ The embedded app includes all core KrishiMitra features from `KrishiMitra_Final_
 | `NODE_ENV` | No | Runtime environment |
 | `CLAUDE_API_KEY` | Yes | Anthropic API key used by `/api/claude` |
 | `CLAUDE_MODEL` | No | Claude model (default: `claude-sonnet-4-20250514`) |
-| `ALLOWED_ORIGIN` | No | CORS origin (`*` by default) |
+| `ALLOWED_ORIGIN` | No | Allowed CORS origins (comma-separated, default: `http://localhost:3000`) |
 
 ## API Documentation
 

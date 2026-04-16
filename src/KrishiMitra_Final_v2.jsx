@@ -741,7 +741,6 @@ function LibraryScreen({initCrop,userCrops}){
 function DiagnoseScreen({mode,activeCrop}){
   const [crop,setCrop]=useState(activeCrop||"Soybean");
   const [desc,setDesc]=useState("");
-  const [img,setImg]=useState(null);
   const [b64,setB64]=useState(null);
   const [ans,setAns]=useState("");
   const [busy,setBusy]=useState(false);
@@ -752,7 +751,7 @@ function DiagnoseScreen({mode,activeCrop}){
   const m=ms[mode]||ms.general;
   const ps={disease:`Meri ${crop} fasal mein: "${desc}". (1) Bimari ka naam (2) Karan (3) Treatment + fungicide dose`,pest:`Meri ${crop} mein keeda: "${desc}". (1) Naam (2) Insecticide + dose (3) Spray timing`,weed:`Meri ${crop} mein weed: "${desc}". (1) Weed type (2) Herbicide + dose (3) Best timing`,weather:`${crop} ke liye weather query: "${desc}". Short practical advice.`,loan:`Kisan credit query: "${desc}". Schemes, eligibility, process.`,general:`${crop} ke baare mein: "${desc}". Practical advice.`};
   const go=async()=>{if(!desc.trim())return;setBusy(true);setAns("");setProds([]);try{setAns(await ai(ps[mode]||ps.general,b64));if(mode==="disease")setProds(AGRI_PRODUCTS.slice(0,2));else if(mode==="pest")setProds(AGRI_PRODUCTS.slice(1,3));else if(mode==="weed")setProds(AGRI_PRODUCTS.slice(2,4));}catch{setAns("⚠️ Error. Internet check karein.");}setBusy(false);};
-  const handleImg=e=>{const f=e.target.files[0];if(!f)return;setImg(URL.createObjectURL(f));const r=new FileReader();r.onload=ev=>setB64(ev.target.result.split(",")[1]);r.readAsDataURL(f);};
+  const handleImg=e=>{const f=e.target.files[0];if(!f||!f.type?.startsWith("image/"))return;const r=new FileReader();r.onload=ev=>setB64(ev.target.result.split(",")[1]);r.readAsDataURL(f);};
   return(
     <div style={{padding:"16px 16px 90px"}}>
       <SH title={`${m.icon} ${m.t}`} sub="AI se seedha, bilkul free"/>
@@ -766,7 +765,7 @@ function DiagnoseScreen({mode,activeCrop}){
         <label style={{color:T.blue,fontSize:11,fontWeight:700,display:"block",marginBottom:5}}>📝 Samasya</label>
         <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder={m.ph} rows={4} style={{width:"100%",padding:13,borderRadius:R.md,background:T.bgCard,border:`1px solid ${T.brd}`,color:T.t0,fontSize:14,resize:"none",lineHeight:1.65}}/>
       </div>
-      {m.photo&&(<div style={{marginBottom:14}}><Btn full v="outline" onClick={()=>fRef.current?.click()}>📷 Photo Upload Karo (Optional)</Btn><input ref={fRef} type="file" accept="image/*" capture="environment" onChange={handleImg} style={{display:"none"}}/>{img&&<img src={img} alt="" style={{width:"100%",borderRadius:R.md,marginTop:10,maxHeight:180,objectFit:"cover",border:`2px solid ${T.g4}`}}/>}</div>)}
+      {m.photo&&(<div style={{marginBottom:14}}><Btn full v="outline" onClick={()=>fRef.current?.click()}>📷 Photo Upload Karo (Optional)</Btn><input ref={fRef} type="file" accept="image/*" capture="environment" onChange={handleImg} style={{display:"none"}}/></div>)}
       <Btn full disabled={busy||!desc.trim()} onClick={go} style={{padding:15,fontSize:15,marginBottom:20}}>
         {busy?<><Spin/>Soch raha hoon<Dots/></>:"🔍 AI Se Diagnose Karo"}
       </Btn>
