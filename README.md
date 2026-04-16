@@ -10,7 +10,9 @@ KrishiMitraapp/
 │   └── index.html                # React 18 + Babel runtime + full embedded KrishiMitra app
 ├── src/
 │   └── KrishiMitra_Final_v2.jsx  # Source JSX copy of the app
+├── logs/                         # PM2 runtime log files (git-ignored)
 ├── server.js                     # Express server + static hosting + Claude API proxy
+├── ecosystem.config.js           # PM2 process config for Hostinger
 ├── package.json                  # Node.js dependencies and scripts
 ├── .env.example                  # Environment variable template
 ├── .gitignore                    # Security/build ignore rules
@@ -110,3 +112,47 @@ Proxy endpoint used by frontend AI features.
 
 - Frontend AI calls now go through `/api/claude` (server-side key handling).
 - Keep `.env` private and never commit real API keys.
+
+## PM2 Process Management (Recommended for Hostinger)
+
+[PM2](https://pm2.keymetrics.io/) keeps your app alive after crashes and system reboots.
+
+### Install PM2 globally (once on the server)
+```bash
+npm install -g pm2
+```
+
+### Start the app with PM2
+```bash
+npm run pm2:start
+# or directly:
+pm2 start ecosystem.config.js
+```
+
+### Useful PM2 commands
+| Command | Description |
+|---|---|
+| `pm2 list` | Show all running apps |
+| `npm run pm2:logs` / `pm2 logs krishimitra` | Live log stream |
+| `npm run pm2:restart` / `pm2 restart krishimitra` | Reload without downtime |
+| `npm run pm2:stop` / `pm2 stop krishimitra` | Stop the process |
+| `pm2 monit` | Real-time CPU/memory dashboard |
+
+### Auto-start on server reboot
+```bash
+pm2 startup   # generates a system startup command — run the printed command
+pm2 save      # saves the process list so PM2 restores it on reboot
+```
+
+### Optional: log rotation
+```bash
+pm2 install pm2-logrotate           # install the logrotate module
+pm2 set pm2-logrotate:max_size 10M  # rotate when a log file exceeds 10 MB
+pm2 set pm2-logrotate:retain 7      # keep 7 rotated files
+```
+
+### ecosystem.config.js highlights
+- **1 instance** in `fork` mode — correct for shared Hostinger plans.
+- **300 MB memory limit** — process restarts automatically if exceeded.
+- **Structured JSON logs** written to `logs/out.log` and `logs/error.log` (git-ignored).
+- Set `instances: "max"` and `exec_mode: "cluster"` only if your plan provides multiple CPU cores.
