@@ -1,0 +1,21 @@
+{
+  "name": "krishimitra-hostinger-node-app",
+  "version": "1.0.0",
+  "description": "KrishiMitra React JSX app served via Node.js/Express for Hostinger deployment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "dependencies": {
+    "@babel/standalone": "^7.28.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
